@@ -11,9 +11,11 @@ import { Cache } from 'cache-manager';
 import { DataGovApiEndpoints } from 'src/constants/api';
 
 import {
-  GetAreaMetadataAndForecastRequest,
+  AreaMetadataAndForecast,
   GetTwoHourForecastResponse,
+  SelectedDateQuery,
 } from './traffic.dto';
+import trafficMapper from './traffic.mapper';
 
 @Injectable()
 export default class TrafficService {
@@ -27,13 +29,13 @@ export default class TrafficService {
   }
 
   async fetchAreaMetadataAndForecast(
-    queryDate: GetAreaMetadataAndForecastRequest,
-  ): Promise<GetTwoHourForecastResponse> {
+    queryDate?: SelectedDateQuery,
+  ): Promise<AreaMetadataAndForecast> {
     const selectedDate = queryDate ? queryDate.toString() : '';
     const cacheName = 'fetchAreaMetadataAndForecast' + selectedDate;
 
     const cachedData =
-      await this.cacheService.get<GetTwoHourForecastResponse>(cacheName);
+      await this.cacheService.get<AreaMetadataAndForecast>(cacheName);
     if (cachedData) {
       return cachedData;
     }
@@ -44,10 +46,13 @@ export default class TrafficService {
           DataGovApiEndpoints.GET_TWO_HOUR_FORECAST,
           { ...(selectedDate && { params: { date_time: selectedDate } }) },
         );
-      // expire cache after 30 mins
-      await this.cacheService.set(cacheName, data, 1800);
 
-      return data;
+      const mappedData = trafficMapper.toAreaMetadataAndForecast(data);
+
+      // expire cache after 30 mins
+      await this.cacheService.set(cacheName, mappedData, 1800);
+
+      return mappedData;
     } catch (error) {
       this.logger.error(
         'failed to fetch two-hour forecast',

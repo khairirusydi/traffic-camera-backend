@@ -1,11 +1,22 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  IntersectionType,
+  OmitType,
+} from '@nestjs/swagger';
 import {
   IsArray,
   IsDateString,
   IsOptional,
   ValidateNested,
 } from 'class-validator';
+
+export class SelectedDateQuery {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDateString()
+  selectedDate?: Date;
+}
 
 export class ApiInfoResponse {
   @ApiProperty()
@@ -20,13 +31,6 @@ export class DateRange {
   @ApiProperty()
   @IsDateString()
   end: Date;
-}
-
-export class GetAreaMetadataAndForecastRequest {
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsDateString()
-  selectedDate?: Date;
 }
 
 export class LabelLocation {
@@ -65,10 +69,9 @@ export class TwoHourForecast {
   @ApiProperty()
   valid_period: DateRange;
 
-  @ApiProperty()
+  @ApiProperty({ type: [AreaForecast] })
   @IsArray()
   @ValidateNested()
-  @Type(() => AreaForecast)
   forecasts: AreaForecast[];
 }
 
@@ -76,15 +79,25 @@ export class GetTwoHourForecastResponse {
   @ApiProperty()
   api_info: ApiInfoResponse;
 
-  @ApiProperty()
+  @ApiProperty({ type: [AreaMetadata] })
   @IsArray()
   @ValidateNested()
-  @Type(() => AreaMetadata)
   area_metadata: AreaMetadata[];
 
-  @ApiProperty()
+  @ApiProperty({ type: [TwoHourForecast] })
   @IsArray()
   @ValidateNested()
-  @Type(() => TwoHourForecast)
   items: TwoHourForecast[];
+}
+
+export class Location extends IntersectionType(
+  AreaMetadata,
+  OmitType(AreaForecast, ['area'] as const),
+) {}
+
+export class AreaMetadataAndForecast {
+  @ApiProperty({ type: [Location] })
+  @IsArray()
+  @ValidateNested()
+  locations: Location[];
 }

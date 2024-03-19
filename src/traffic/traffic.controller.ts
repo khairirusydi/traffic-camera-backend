@@ -1,10 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
-import {
-  GetAreaMetadataAndForecastRequest,
-  GetTwoHourForecastResponse,
-} from './traffic.dto';
+import { AreaMetadataAndForecast, SelectedDateQuery } from './traffic.dto';
 import TrafficService from './traffic.service';
 
 @Controller('traffic')
@@ -13,9 +10,10 @@ export default class TrafficController {
   constructor(private readonly trafficService: TrafficService) {}
 
   @Get()
+  @ApiOkResponse({ type: AreaMetadataAndForecast })
   getAreaMetadataAndForecast(
-    @Query('selectedDate') selectedDate: GetAreaMetadataAndForecastRequest,
-  ): Promise<GetTwoHourForecastResponse> {
+    @Query('selectedDate') selectedDate?: SelectedDateQuery,
+  ): Promise<AreaMetadataAndForecast> {
     return this.trafficService.fetchAreaMetadataAndForecast(selectedDate);
   }
 }

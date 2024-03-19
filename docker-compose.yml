@@ -3,7 +3,7 @@
 version: '3.8'
 services:
   postgres:
-    container_name: pg_container
+    container_name: pg
     image: postgres:15
     restart: always
     environment:
@@ -14,6 +14,14 @@ services:
       - postgres:/var/lib/postgresql/data
     ports:
       - '127.0.0.1:5555:5432'
-
+  redis:
+    container_name: cache
+    image: redis:6
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - redis:/data
 volumes:
   postgres:
+  redis:

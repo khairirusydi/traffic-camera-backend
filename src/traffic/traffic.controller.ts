@@ -1,6 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Observable } from 'rxjs';
 
 import {
   GetAreaMetadataAndForecastRequest,
@@ -16,7 +15,7 @@ export default class TrafficController {
   @Get()
   getAreaMetadataAndForecast(
     @Query('selectedDate') selectedDate: GetAreaMetadataAndForecastRequest,
-  ): Observable<GetTwoHourForecastResponse> {
+  ): Promise<GetTwoHourForecastResponse> {
     return this.trafficService.fetchAreaMetadataAndForecast(selectedDate);
   }
 }

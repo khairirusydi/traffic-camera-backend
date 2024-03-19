@@ -1,11 +1,11 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { CacheModule } from '@nestjs/cache-manager';
 
 import TrafficController from './traffic/traffic.controller';
 import TrafficService from './traffic/traffic.service';
 
 @Module({
-  imports: [CacheModule.register({ isGlobal: true })],
+  imports: [HttpModule],
   controllers: [TrafficController],
   providers: [TrafficService],
 })

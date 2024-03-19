@@ -1,9 +1,4 @@
-import {
-  ApiProperty,
-  ApiPropertyOptional,
-  IntersectionType,
-  OmitType,
-} from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
   IsDateString,
@@ -33,7 +28,7 @@ export class DateRange {
   end: Date;
 }
 
-export class LabelLocation {
+export class LongLat {
   @ApiProperty()
   longitude: number;
 
@@ -46,7 +41,7 @@ export class AreaMetadata {
   name: string;
 
   @ApiProperty()
-  label: LabelLocation;
+  label_location: LongLat;
 }
 
 export class AreaForecast {
@@ -90,14 +85,101 @@ export class GetTwoHourForecastResponse {
   items: TwoHourForecast[];
 }
 
-export class Location extends IntersectionType(
-  AreaMetadata,
-  OmitType(AreaForecast, ['area'] as const),
-) {}
+export class LocationWithForecast {
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  location: LongLat;
+
+  @ApiProperty()
+  forecast: string;
+}
 
 export class AreaMetadataAndForecast {
-  @ApiProperty({ type: [Location] })
+  @ApiProperty({ type: [LocationWithForecast] })
   @IsArray()
   @ValidateNested()
-  locations: Location[];
+  locations: LocationWithForecast[];
+}
+
+export class ImageMetadata {
+  @ApiProperty()
+  height: number;
+
+  @ApiProperty()
+  width: number;
+
+  @ApiProperty()
+  md5: string; // checksum
+}
+
+export class CameraRawResponse {
+  @ApiProperty()
+  @IsDateString()
+  timestamp: Date;
+
+  @ApiProperty()
+  image: string;
+
+  @ApiProperty()
+  location: LongLat;
+
+  @ApiProperty()
+  camera_id: string;
+
+  @ApiProperty()
+  image_metadata: ImageMetadata;
+}
+
+export class CameraResponse {
+  @ApiProperty()
+  @IsDateString()
+  timestamp: Date;
+
+  @ApiProperty()
+  image: string;
+
+  @ApiProperty()
+  location: LongLat;
+
+  @ApiProperty()
+  cameraId: string;
+
+  @ApiProperty()
+  imageMetadata: ImageMetadata;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  forecast: string;
+}
+
+export class TrafficImagesItem {
+  @ApiProperty()
+  @IsDateString()
+  timestamp: Date;
+
+  @ApiProperty({ type: [CameraRawResponse] })
+  @IsArray()
+  @ValidateNested()
+  cameras: CameraRawResponse[];
+}
+
+export class GetTrafficImagesRawResponse {
+  @ApiProperty()
+  api_info: ApiInfoResponse;
+
+  @ApiProperty({ type: [TrafficImagesItem] })
+  @IsArray()
+  @ValidateNested()
+  items: TrafficImagesItem[];
+}
+
+export class GetTrafficCamerasResponse {
+  @ApiProperty({ type: [CameraResponse] })
+  @IsArray()
+  @ValidateNested()
+  cameras: CameraResponse[];
 }

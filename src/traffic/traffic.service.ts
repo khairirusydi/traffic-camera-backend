@@ -12,6 +12,8 @@ import { DataGovApiEndpoints } from 'src/constants/api';
 
 import {
   AreaMetadataAndForecast,
+  GetTrafficCamerasResponse,
+  GetTrafficImagesRawResponse,
   GetTwoHourForecastResponse,
   SelectedDateQuery,
 } from './traffic.dto';
@@ -54,10 +56,45 @@ export default class TrafficService {
 
       return mappedData;
     } catch (error) {
-      this.logger.error(
-        'failed to fetch two-hour forecast',
-        error.response.data,
+      this.logger.error('failed to fetch two-hour forecast', error);
+      throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async fetchTrafficCameras(
+    queryDate?: SelectedDateQuery,
+  ): Promise<GetTrafficCamerasResponse> {
+    const selectedDate = queryDate ? queryDate.toString() : '';
+    const cacheName = 'fetchTrafficImages' + selectedDate;
+
+    const cachedData =
+      await this.cacheService.get<GetTrafficCamerasResponse>(cacheName);
+    if (cachedData) {
+      return cachedData;
+    }
+
+    try {
+      const { data } =
+        await this.httpService.axiosRef.get<GetTrafficImagesRawResponse>(
+          DataGovApiEndpoints.GET_TRAFFIC_IMAGES,
+          { ...(selectedDate && { params: { date_time: selectedDate } }) },
+        );
+
+      const { locations } = await this.fetchAreaMetadataAndForecast(
+        selectedDate as SelectedDateQuery,
       );
+
+      const mappedData = trafficMapper.toTrafficCamerasWithForecast(
+        data,
+        locations,
+      );
+
+      // expire cache after 30 seconds
+      await this.cacheService.set(cacheName, mappedData, 30);
+
+      return mappedData;
+    } catch (error) {
+      this.logger.error('failed to fetch traffic images', error);
       throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
     }
   }

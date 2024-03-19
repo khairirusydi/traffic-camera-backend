@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import TrafficController from './traffic.controller';
 import TrafficService from './traffic.service';
 

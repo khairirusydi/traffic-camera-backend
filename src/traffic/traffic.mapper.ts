@@ -1,3 +1,4 @@
+import { groupBy } from 'lodash';
 import { getNearestArea } from 'src/utils.ts/coordinates';
 
 import {
@@ -24,8 +25,8 @@ const toAreaMetadataAndForecast = (
 const toTrafficCamerasWithForecast = (
   trafficImages: GetTrafficImagesRawResponse,
   areas: LocationWithForecast[],
-): GetTrafficCamerasResponse => ({
-  cameras:
+): GetTrafficCamerasResponse => {
+  const camerasWithNames: GetTrafficCamerasResponse['cameras'] =
     trafficImages.items?.[0]?.cameras?.map((rawCamera) => {
       const { latitude, longitude } = rawCamera.location;
       const closestArea = getNearestArea(latitude, longitude, areas);
@@ -39,8 +40,19 @@ const toTrafficCamerasWithForecast = (
         name: closestArea.name,
         forecast: closestArea.forecast,
       };
-    }) || [],
-});
+    });
+
+  const groupedByArea = groupBy(camerasWithNames, 'name');
+  const renamedCameras = Object.values(groupedByArea).flatMap(
+    (camerasByLocation) =>
+      camerasByLocation.map((camera, index) => ({
+        ...camera,
+        name: camera.name + ` ${index + 1}`,
+      })),
+  );
+
+  return { cameras: renamedCameras };
+};
 
 const trafficMapper = {
   toAreaMetadataAndForecast,

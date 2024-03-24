@@ -12,20 +12,24 @@ import {
 const toAreaMetadataAndForecast = (
   data: GetTwoHourForecastResponse,
 ): AreaMetadataAndForecast => ({
-  locations: data.area_metadata.map((metadata) => ({
-    name: metadata.name,
-    location: metadata.label_location,
-    forecast:
-      data.items?.[0].forecasts.find(
-        (forecast) => forecast.area === metadata.name,
-      ).forecast || '',
-  })),
+  locations:
+    data?.area_metadata?.map((metadata) => ({
+      name: metadata.name,
+      location: metadata.label_location,
+      forecast:
+        data.items?.[0]?.forecasts.find(
+          (forecast) => forecast.area === metadata.name,
+        ).forecast || '',
+    })) ?? [],
 });
 
 const toTrafficCamerasWithForecast = (
   trafficImages: GetTrafficImagesRawResponse,
   areas: LocationWithForecast[],
-): GetTrafficCamerasResponse => {
+): GetTrafficCamerasResponse | undefined => {
+  if (!trafficImages?.items?.length) {
+    return undefined;
+  }
   const camerasWithNames: GetTrafficCamerasResponse['cameras'] =
     trafficImages.items?.[0]?.cameras?.map((rawCamera) => {
       const { latitude, longitude } = rawCamera.location;

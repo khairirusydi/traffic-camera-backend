@@ -1,8 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
-  HttpException,
-  HttpStatus,
+  BadRequestException,
   Inject,
   Injectable,
   Logger,
@@ -51,13 +50,17 @@ export default class TrafficService {
 
       const mappedData = trafficMapper.toAreaMetadataAndForecast(data);
 
+      if (!mappedData.locations.length) {
+        throw new Error('unable to map list of areas');
+      }
+
       // expire cache after 30 mins
       await this.cacheService.set(cacheName, mappedData, 1800);
 
       return mappedData;
     } catch (error) {
       this.logger.error('failed to fetch two-hour forecast', error);
-      throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('Something went wrong');
     }
   }
 
@@ -89,13 +92,17 @@ export default class TrafficService {
         locations,
       );
 
+      if (!mappedData) {
+        throw new Error('unable to map list of traffic cameras');
+      }
+
       // expire cache after 30 seconds
       await this.cacheService.set(cacheName, mappedData, 30);
 
       return mappedData;
     } catch (error) {
       this.logger.error('failed to fetch traffic images', error);
-      throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('Something went wrong');
     }
   }
 }

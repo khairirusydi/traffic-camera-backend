@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import {
   CreateQueryRequest,
   CreateQueryResponse,
+  GetQueriesByPeriodRequest,
+  GetQueriesByPeriodResponse,
   GetRecentQueriesResponse,
 } from './queries.dto';
 import { QueriesService } from './queries.service';
@@ -25,5 +27,16 @@ export class QueriesController {
   @ApiOkResponse({ type: GetRecentQueriesResponse })
   getRecentQueries(): Promise<GetRecentQueriesResponse> {
     return this.queriesService.fetchRecentQueries();
+  }
+
+  @Get('top-queries-by-period')
+  @ApiOkResponse({ type: GetRecentQueriesResponse })
+  getTopQueriesByPeriod(
+    @Query() { startDateTime, endDateTime }: GetQueriesByPeriodRequest,
+  ): Promise<GetQueriesByPeriodResponse> {
+    return this.queriesService.fetchTopQueriesByPeriod(
+      startDateTime,
+      endDateTime,
+    );
   }
 }

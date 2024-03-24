@@ -30,4 +30,26 @@ export default class QueriesRepository {
       ],
     });
   }
+
+  async fetchTopQueriesByPeriod(
+    startDate: string,
+    endDate: string,
+  ): Promise<SearchQuery[]> {
+    const maxResultCount = 10;
+
+    return await this.prisma.searchQuery.findMany({
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      orderBy: [
+        {
+          createdAt: 'desc',
+        },
+      ],
+      take: maxResultCount,
+    });
+  }
 }

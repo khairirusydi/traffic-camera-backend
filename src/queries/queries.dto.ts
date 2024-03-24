@@ -1,5 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsDateString, ValidateNested } from 'class-validator';
+import { ApiProperty, IntersectionType } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsArray, IsDateString, IsInt, ValidateNested } from 'class-validator';
 
 export class CreateQueryRequest {
   @ApiProperty()
@@ -32,3 +33,28 @@ export class GetRecentQueriesResponse {
   @ValidateNested()
   queries: CreateQueryResponse[];
 }
+
+export class GetQueriesByPeriodRequest {
+  @ApiProperty({
+    name: 'startDateTime',
+    example: 1711209600,
+    description: 'start datetime period in Unix timestamps in seconds',
+  })
+  @IsInt()
+  @Type(() => Number)
+  startDateTime: number;
+
+  @ApiProperty({
+    name: 'endDateTime',
+    example: 1711252799,
+    description: 'end datetime period in Unix timestamps in seconds',
+  })
+  @IsInt()
+  @Type(() => Number)
+  endDateTime: number;
+}
+
+export class GetQueriesByPeriodResponse extends IntersectionType(
+  GetQueriesByPeriodRequest,
+  GetRecentQueriesResponse,
+) {}

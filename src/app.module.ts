@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import * as redisStore from 'cache-manager-redis-store';
 
 import { PrismaModule } from './prisma/prisma.module';
+import { QueriesModule } from './queries/queries.module';
 import TrafficController from './traffic/traffic.controller';
 import TrafficService from './traffic/traffic.service';
 
@@ -19,6 +20,7 @@ import TrafficService from './traffic/traffic.service';
       port: process.env.REDIS_PORT,
     }),
     PrismaModule,
+    QueriesModule,
   ],
   controllers: [TrafficController],
   providers: [TrafficService],

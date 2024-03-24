@@ -1,6 +1,10 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
-import { CreateQueryRequest, CreateQueryResponse } from './queries.dto';
+import {
+  CreateQueryRequest,
+  CreateQueryResponse,
+  GetRecentQueriesResponse,
+} from './queries.dto';
 import QueriesRepository from './queries.repository';
 
 @Injectable()
@@ -14,16 +18,25 @@ export class QueriesService {
   async createQuery(
     createQueryRequest: CreateQueryRequest,
   ): Promise<CreateQueryResponse> {
-    let searchQuery: CreateQueryResponse;
-
     try {
-      searchQuery =
+      const searchQuery =
         await this.queriesRepository.CreateQueryRequest(createQueryRequest);
+
+      return searchQuery;
     } catch (error) {
       this.logger.error('Something went wrong adding search query', error);
       throw new BadRequestException('Something went wrong');
     }
+  }
 
-    return searchQuery;
+  async fetchRecentQueries(): Promise<GetRecentQueriesResponse> {
+    try {
+      const recentQueries = await this.queriesRepository.fetchRecentQueries();
+
+      return { queries: recentQueries || [] };
+    } catch (error) {
+      this.logger.error('Something went wrong fetching recent queries', error);
+      throw new BadRequestException('Something went wrong');
+    }
   }
 }

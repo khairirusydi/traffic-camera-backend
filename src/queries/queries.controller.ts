@@ -1,7 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
-import { CreateQueryRequest, CreateQueryResponse } from './queries.dto';
+import {
+  CreateQueryRequest,
+  CreateQueryResponse,
+  GetRecentQueriesResponse,
+} from './queries.dto';
 import { QueriesService } from './queries.service';
 
 @Controller('queries')
@@ -15,5 +19,11 @@ export class QueriesController {
     @Body() createQueryDto: CreateQueryRequest,
   ): Promise<CreateQueryResponse> {
     return this.queriesService.createQuery(createQueryDto);
+  }
+
+  @Get('recent-queries')
+  @ApiOkResponse({ type: GetRecentQueriesResponse })
+  getRecentQueries(): Promise<GetRecentQueriesResponse> {
+    return this.queriesService.fetchRecentQueries();
   }
 }

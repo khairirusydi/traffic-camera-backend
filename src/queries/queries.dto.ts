@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString } from 'class-validator';
+import { IsArray, IsDateString, ValidateNested } from 'class-validator';
 
 export class CreateQueryRequest {
   @ApiProperty()
@@ -24,4 +24,11 @@ export class CreateQueryResponse {
   @ApiProperty()
   @IsDateString()
   createdAt: Date;
+}
+
+export class GetRecentQueriesResponse {
+  @ApiProperty({ type: [CreateQueryResponse] })
+  @IsArray()
+  @ValidateNested()
+  queries: CreateQueryResponse[];
 }

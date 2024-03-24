@@ -11,5 +11,6 @@ model SearchQuery {
   id           String   @id @default(uuid())
   selectedDate DateTime
   cameraId     String
+  name     String
   createdAt    DateTime @default(now())
 }

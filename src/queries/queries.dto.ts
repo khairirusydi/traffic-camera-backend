@@ -9,6 +9,9 @@ export class CreateQueryRequest {
 
   @ApiProperty()
   cameraId: string;
+
+  @ApiProperty()
+  name: string;
 }
 
 export class CreateQueryResponse {
@@ -21,6 +24,9 @@ export class CreateQueryResponse {
 
   @ApiProperty()
   cameraId: string;
+
+  @ApiProperty()
+  name: string;
 
   @ApiProperty()
   @IsDateString()

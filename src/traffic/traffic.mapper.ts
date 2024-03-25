@@ -1,6 +1,6 @@
 import { groupBy } from 'lodash';
-import { getNearestArea } from 'src/utils.ts/coordinates';
 
+import { getNearestArea } from '../utils/coordinates';
 import {
   AreaMetadataAndForecast,
   GetTrafficCamerasResponse,
